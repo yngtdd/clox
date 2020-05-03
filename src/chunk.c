@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "chunk.h"
+#include "memory.h"
 
 /**
  * Create a code chunk
