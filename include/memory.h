@@ -25,6 +25,6 @@
     (type*)reallocate(previous, sizeof(type), * (count_old), \
         sizeof(type) * (count))
 
-void* reallocate(void* previous, size_t, size_old, size_t, size_new);
+void* reallocate(void* previous, size_t size_old, size_t size_new);
 
 #endif
