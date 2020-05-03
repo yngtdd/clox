@@ -21,7 +21,7 @@
  * | non-zero | size_new < size_old | Shrink existing allocation |
  * | non-zero | size_new > size_old | Grow existing allocation   |
  */
-void* reallocate(void* previous, size_t, size_old, size_new)
+void* reallocate(void* previous, size_t size_old, size_t size_new)
 {
     if (size_new == 0)
     {
