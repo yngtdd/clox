@@ -22,7 +22,7 @@
  * void* back to a pointer of the correct type.
  */
 #define GROW_ARRAY(previous, type, count_old, count) \
-    (type*)reallocate(previous, sizeof(type), * (count_old), \
+    (type*)reallocate(previous, sizeof(type) * (count_old), \
         sizeof(type) * (count))
 
 void* reallocate(void* previous, size_t size_old, size_t size_new);
