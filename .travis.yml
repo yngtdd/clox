@@ -1,0 +1,11 @@
+language: C
+
+script:
+    - mkdir -p build
+    - cd build
+    - cmake ..
+    - cmake --build . --config Release
+
+compiler:
+    - clang
+    - gcc
