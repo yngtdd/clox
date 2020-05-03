@@ -3,17 +3,30 @@
 #include "memory.h"
 
 /**
- * Create a code chunk
+ * Initialize a code chunk
  *
  * Here a chunk is a blob of bytecode where an
  * instruction in the language has a one-byte
  * operation code (opcode).
  */
-void chunk_create(Chunk* chunk) 
+void chunk_init(Chunk* chunk) 
 {
     chunk->count = 0;
     chunk->capacity = 0;
     chunk->code = NULL;
+}
+
+/**
+ * Free a chunk
+ *
+ * Deallocate all of the memory of a chunk and 
+ * call `chunk_init` to reallocate a chunk leaving the
+ * chunk in a well-defined empty state.
+ */
+void chunk_free(Chunk* chunk)
+{
+    FREE_ARRAY(uint8_t, chunk->code, chunk->capacity);
+    chunk_init(chunk);
 }
 
 /**

@@ -27,4 +27,13 @@
 
 void* reallocate(void* previous, size_t size_old, size_t size_new);
 
+/**
+ * Free an array of memory
+ *
+ * This is a wrapper around reallocate. It frees memory
+ * by passing in zero for `size_new` of `reallocate`.
+ */
+#define FREE_ARRAY(type, pointer, count_old) \
+    reallocate(pointer, sizeof(type) * (count_old), 0)
+
 #endif

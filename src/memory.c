@@ -31,3 +31,4 @@ void* reallocate(void* previous, size_t size_old, size_t size_new)
 
     return realloc(previous, size_new);
 }
+
