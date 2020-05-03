@@ -14,7 +14,7 @@
 #define GROW_CAPACITY(capacity) \
     ((capacity) < 8 ? 8 : (capacity) * 2)
 
-/*
+/**
  * Grow a chunk array
  *
  * Reallocate the chunk array with a new size. This will get 

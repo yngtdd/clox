@@ -2,7 +2,7 @@
 #include "common.h"
 #include "memory.h"
 
-/*
+/**
  * Reallocate memory when growing chunk sizes
  *
  * Handles dynamic memory management for Clox - allocating 
