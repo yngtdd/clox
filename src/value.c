@@ -11,9 +11,9 @@
  */
 void value_array_init(ValueArray* array)
 {
+    array->values = NULL;
     array->capacity = 0;
     array->count = 0;
-    array->values = NULL;
 }
 
 /**
