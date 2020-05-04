@@ -15,6 +15,7 @@ void chunk_init(Chunk* chunk)
     chunk->count = 0;
     chunk->capacity = 0;
     chunk->code = NULL;
+    chunk->lines = NULL;
     value_array_init(&chunk->constants);
 }
 
@@ -28,6 +29,7 @@ void chunk_init(Chunk* chunk)
 void chunk_free(Chunk* chunk)
 {
     FREE_ARRAY(uint8_t, chunk->code, chunk->capacity);
+    FREE_ARRAY(int, chunk->lines, chunk->capacity);
     value_array_free(&chunk->constants);
     chunk_init(chunk);
 }
@@ -44,18 +46,22 @@ void chunk_free(Chunk* chunk)
  * array. Doubling the size in this way means that on 
  * average, the cost of appending to the chunk is O(1).
  */
-void chunk_write(Chunk* chunk, uint8_t byte) 
+void chunk_write(Chunk* chunk, uint8_t byte, int line)
 {
-    if (chunk->capacity < chunk->count + 1) 
+    if (chunk->capacity < chunk->count + 1)
     {
         int capacity_old = chunk->capacity;
         chunk->capacity = GROW_CAPACITY(capacity_old);
         chunk->code = GROW_ARRAY(
             chunk->code, uint8_t, capacity_old, chunk->capacity
         );
+        chunk->lines = GROW_ARRAY(
+            chunk->lines, int, capacity_old, chunk->capacity
+        );
     }
 
     chunk->code[chunk->count] = byte;
+    chunk->lines[chunk->count] = line;
     chunk->count++;
 }
 
