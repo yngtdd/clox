@@ -51,3 +51,14 @@ void value_array_write(ValueArray* array, Value value)
     array->values[array->count] = value;
     array->count++;
 }
+
+/**
+ * Print a constant value
+ *
+ * This value is held in our constants array
+ * in each chunk.
+ */
+void value_print(Value value)
+{
+    printf("%g", value);
+}

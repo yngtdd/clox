@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "debug.h"
+#include "value.h"
 
 /**
  * Disassemble all of the instructions in a chunk
@@ -24,6 +25,26 @@ void chunk_disassemble(Chunk* chunk, const char* name)
     {
         offset = instruction_disassemble(chunk, offset);
     }
+}
+
+/**
+ * Print a constant instruction
+ *
+ * @param name the name of the instruction
+ * @param chunk the chunk where the value is stored
+ * @offset its location in the bytecode
+ *
+ * After printing the constant value we return the next offset 
+ * incrementing by two. This is because the constants store two bytes, 
+ * one for the opcode and one for the operand.
+ */
+static int instruction_constant(const char* name, Chunk* chunk, int offset)
+{
+    uint8_t constant = chunk->code[offset + 1];
+    printf("%-16s %4d '", name, constant);
+    value_print(chunk->constants.values[constant]);
+    printf("'\n");
+    return offset + 2;
 }
 
 /**
@@ -67,6 +88,8 @@ int instruction_disassemble(Chunk* chunk, int offset)
 
     switch (instruction)
     {
+        case OP_CONSTANT:
+            return instruction_constant("OP_CONSTANT", chunk, offset);
         case OP_RETURN:
             return instruction_simple("OP_RETURN", offset);
         default:
