@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "chunk.h"
 #include "memory.h"
+#include "value.h"
 
 /**
  * Initialize a code chunk
@@ -14,6 +15,7 @@ void chunk_init(Chunk* chunk)
     chunk->count = 0;
     chunk->capacity = 0;
     chunk->code = NULL;
+    value_array_init(&chunk->constants);
 }
 
 /**
@@ -26,6 +28,7 @@ void chunk_init(Chunk* chunk)
 void chunk_free(Chunk* chunk)
 {
     FREE_ARRAY(uint8_t, chunk->code, chunk->capacity);
+    value_array_free(&chunk->constants);
     chunk_init(chunk);
 }
 
@@ -55,3 +58,17 @@ void chunk_write(Chunk* chunk, uint8_t byte)
     chunk->code[chunk->count] = byte;
     chunk->count++;
 }
+
+/**
+ * Add a constant to the chunk constants
+ *
+ * @param chunk the chunk the constant will be added to
+ * @param value the constant value to be added
+ * @return the index at which that constant can be found
+ */
+int chunk_constant_add(Chunk* chunk, Value value)
+{
+    value_array_write(&chunk->constants, value);
+    return chunk->constants.count - 1;
+}
+

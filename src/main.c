@@ -6,8 +6,11 @@ int main(int argc, const char* argv[])
 {
     Chunk chunk;
     chunk_init(&chunk);
-    chunk_write(&chunk, OP_RETURN);
-    chunk_disassemble(&chunk, "test chunk");
+    for (int i = 0; i < 5; i++)
+    {
+        chunk_write(&chunk, OP_RETURN);
+    }
+    chunk_disassemble(&chunk, "Test Chunk");
     chunk_free(&chunk);
 
     return 0;
