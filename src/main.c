@@ -1,41 +1,87 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "chunk.h"
 #include "debug.h"
 #include "common.h"
 #include "vm.h"
 
-void append_constant(Chunk* chunk, double num, int line)
+/**
+ * Run the REPL
+ *
+ * This is a super simple REPL. We do not 
+ * support multiline interpretation and we 
+ * have a hard limit on line length (1024).
+ */
+static void repl()
 {
-    int constant = chunk_constant_add(chunk, num);
-    chunk_write(chunk, OP_CONSTANT, line);
-    chunk_write(chunk, constant, line);
+    char line[1024];
+    for (;;)
+    {
+        printf("clox > ");
+
+        if (!fgets(line, sizeof(line), stdin))
+        {
+            printf("\n");
+            break;
+        }
+
+        vm_interpret(line);
+    }
+}
+
+/**
+ * Read source code from a file
+ */
+static char* file_read(const char* path)
+{
+    //TODO(TODD): error checking 
+    FILE* file = fopen(path, "rb");
+
+    fseek(file, 0L, SEEK_END);
+    size_t file_size = ftell(file);
+    rewind(file);
+
+    char* buffer = (char*)malloc(file_size + 1);
+    size_t bytes_read = fread(buffer, sizeof(char), file_size, file);
+    buffer[bytes_read] = '\0';
+
+    fclose(file);
+    return buffer;
+}
+
+/**
+ * Run source code from a file
+ */
+static void file_run(const char* path)
+{
+    char* source = file_read(path);
+    InterpretResult result = vm_interpret(source);
+    free(source);
+
+    if (result == INTERPRET_COMPILE_ERROR) exit(65);
+    if (result == INTERPRET_RUNTIME_ERROR) exit(70);
 }
 
 int main(int argc, const char* argv[]) 
 {
     vm_init();
 
-    Chunk chunk;
-    chunk_init(&chunk);
-
-    append_constant(&chunk, 2, 20);
-    append_constant(&chunk, 3, 21);
-
-    chunk_write(&chunk, OP_MULTIPLY, 23);
-
-    append_constant(&chunk, 4, 22);
-    append_constant(&chunk, 5, 22);
-    chunk_write(&chunk, OP_NEGATE, 27);
-    chunk_write(&chunk, OP_DIVIDE, 26);
-    chunk_write(&chunk, OP_SUBTRACT, 29);
-    append_constant(&chunk, 1, 30);
-    chunk_write(&chunk, OP_ADD, 31);
-
-    chunk_write(&chunk, OP_RETURN, 28);
-
-    vm_interpret(&chunk);
+    if (argc == 1)
+    {
+        repl();
+    }
+    else if (argc == 2)
+    {
+        file_run(argv[1]);
+    }
+    else
+    {
+        fprintf(stderr, "Usage: clox [path]\n");
+        exit(64);
+    }
 
     vm_free();
-    chunk_free(&chunk);
-
     return 0;
 }
