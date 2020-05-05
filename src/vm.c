@@ -83,6 +83,12 @@ static InterpretResult vm_run()
     // Read the next byte from bytecode, treat the resulting number as an
     // index, and look up the corresponding location in the chunk's constant table.
     #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
+    #define BINARY_OP(op) \
+        do { \
+            double b = vm_stack_pop(); \
+            double a = vm_stack_pop(); \
+            vm_stack_push(a op b); \
+        } while (false)
 
     for (;;)
     {
@@ -107,6 +113,26 @@ static InterpretResult vm_run()
                 vm_stack_push(constant);
                 break;
             }
+            case OP_ADD:
+            {
+                BINARY_OP(+);
+                break;
+            }
+            case OP_SUBTRACT:
+            {
+                BINARY_OP(-);
+                break;
+            }
+            case OP_MULTIPLY:
+            {
+                BINARY_OP(*);
+                break;
+            }
+            case OP_DIVIDE:
+            {
+                BINARY_OP(/);
+                break;
+            }
             case OP_NEGATE:
             {
                 vm_stack_push(-vm_stack_pop());
@@ -123,4 +149,5 @@ static InterpretResult vm_run()
 
     #undef READ_BYTE
     #undef READ_CONSTANT
+    #undef BINARY_OP
 }
