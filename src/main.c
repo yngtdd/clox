@@ -13,6 +13,8 @@ int main(int argc, const char* argv[])
     int constant = chunk_constant_add(&chunk, 3.4);
     chunk_write(&chunk, OP_CONSTANT, 14);
     chunk_write(&chunk, constant, 15);
+    chunk_write(&chunk, OP_NEGATE, 16);
+    chunk_write(&chunk, OP_RETURN, 17);
 
     vm_interpret(&chunk);
 

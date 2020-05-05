@@ -6,11 +6,6 @@
 
 VM vm;
 
-void vm_init() 
-{
-    stack_reset();
-}
-
 /**
  * Reset the virtual machien stack
  *
@@ -18,10 +13,16 @@ void vm_init()
  * to be pointed at the begging of the stack
  * array, indicating that the stack is empty.
  */
-static void stack_reset()
+static void vm_stack_reset()
 {
     vm.stack_top = vm.stack;
 }
+
+void vm_init() 
+{
+    vm_stack_reset();
+}
+
 
 void vm_free() {}
 
@@ -86,6 +87,14 @@ static InterpretResult vm_run()
     for (;;)
     {
         #ifdef DEBUG_TRACE_EXECUTION
+            printf("          ");
+            for (Value* slot = vm.stack; slot < vm.stack_top; slot++)
+            {
+                printf("[  ");
+                value_print(*slot);
+                printf(" ]");
+            }
+            printf("\n");
             instruction_disassemble(vm.chunk, (int)(vm.ip - vm.chunk->code));
         #endif
 
@@ -95,12 +104,18 @@ static InterpretResult vm_run()
             case OP_CONSTANT:
             {
                 Value constant = READ_CONSTANT();
-                value_print(constant);
-                printf("\n");
+                vm_stack_push(constant);
+                break;
+            }
+            case OP_NEGATE:
+            {
+                vm_stack_push(-vm_stack_pop());
                 break;
             }
             case OP_RETURN:
             {
+                value_print(vm_stack_pop());
+                printf("\n");
                 return INTERPRET_OK;
             }
         }
