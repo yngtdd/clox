@@ -53,7 +53,7 @@ static char* file_read(const char* path)
 
     if (buffer == NULL)
     {
-        fprintf(stderr, "Not enough memory to read \"%s\".\n", path);<Paste>
+        fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
         exit(74);
     }
 
@@ -62,7 +62,7 @@ static char* file_read(const char* path)
     if (bytes_read < file_size)
     {
         fprintf(stderr, "Could not read file \"%s\".\n", path); 
-        exit(74)
+        exit(74);
     }
 
     buffer[bytes_read] = '\0';

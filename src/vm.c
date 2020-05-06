@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "common.h"
+#include "compiler.h"
 #include "debug.h"
 #include "value.h"
 #include "vm.h"
@@ -63,11 +64,10 @@ Value vm_stack_pop()
  * instruction pointer. This is also commonly referred
  * to as a program counter.
  */
-InterpretResult vm_interpret(Chunk* chunk)
+InterpretResult vm_interpret(const char* source)
 {
-    vm.chunk = chunk;
-    vm.ip = vm.chunk->code;
-    return vm_run();
+    compile(source);
+    return INTERPRET_OK; 
 }
 
 /**
