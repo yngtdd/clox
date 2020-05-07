@@ -1,8 +1,8 @@
 // Get a tuple of the
 // functions arguments
-fn my_args(arg1 arg2)
+fn my_args(a b)
 {
-    return (arg1, arg2);
+    return (a, b);
 }
 
 fn main()
