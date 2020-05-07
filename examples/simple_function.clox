@@ -1,3 +1,5 @@
+// Get a tuple of the
+// functions arguments
 fn my_args(arg1 arg2)
 {
     return (arg1, arg2);
