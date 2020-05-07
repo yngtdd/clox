@@ -20,6 +20,21 @@ void scanner_init(const char* source)
     scanner.line = 1;
 }
 
+/**
+ * Check if a character is a letter or an underscore
+ */
+static bool is_alpha(char c)
+{
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+           (c == '_');
+}
+
+static bool is_digit(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
 static bool is_at_end()
 {
     return *scanner.current == '\0';
@@ -110,6 +125,123 @@ static void whitespace_skip()
     }
 }
 
+/**
+ * Check if we are parsing a keyword
+ *
+ * We need to verify two things: 1. the lexeme must be exactly 
+ * as long as the keyword and 2. the remaining characters must 
+ * match exactly. If both of this conditions aren't met, then 
+ * we must be dealing with a regular identifier.
+ */
+static TokenType keyword_check(int start, int length, const char* rest, TokenType type)
+{
+    if (scanner.current - scanner.start == start + length &&
+        memcmp(scanner.start + start, rest, length) == 0)
+    {
+        return type;
+    }
+
+    return TOKEN_IDENTIFIER;
+}
+
+/**
+ * Get the identifier type of a lexeme
+ *
+ * We check to see if are encountering a keyword
+ * by using a trie. This lets us do the minimal amount
+ * of work to check if the series of characters are one 
+ * of our keywords, making this thing fast.
+ */
+static TokenType identifier_type()
+{
+    switch (scanner.start[0])
+    {
+        case 'a': return keyword_check(1, 2, "nd", TOKEN_AND);
+        case 'c': return keyword_check(1, 4, "lass", TOKEN_CLASS);
+        case 'e': return keyword_check(1, 3, "lse", TOKEN_CLASS);
+        case 'f':
+            if (scanner.current - scanner.start > 2)
+            {
+                switch (scanner.start[1])
+                {
+                    case 'a': return keyword_check(2, 3, "lse", TOKEN_ELSE);
+                    case 'o': return keyword_check(2, 1, "r", TOKEN_OR);
+                }
+            }
+            else
+            {
+                return keyword_check(1, 1, "n", TOKEN_FN);
+            }
+            break;
+        case 'i': return keyword_check(1, 1, "f", TOKEN_IF);
+        case 'l': return keyword_check(1, 2, "et", TOKEN_LET);
+        case 'n': return keyword_check(1, 2, "il", TOKEN_NIL);
+        case 'o': return keyword_check(1, 1, "r", TOKEN_OR);
+        case 'p': return keyword_check(1, 4, "rint", TOKEN_PRINT);
+        case 'r': return keyword_check(1, 5, "eturn", TOKEN_RETURN);
+        case 's': return keyword_check(1, 4, "uper", TOKEN_SUPER);
+        case 't':
+            if (scanner.current - scanner.start > 1)
+            {
+                switch (scanner.start[1])
+                {
+                    case 'h': return keyword_check(2, 2, "is", TOKEN_THIS);
+                    case 'r': return keyword_check(2, 2, "ue", TOKEN_TRUE);
+                }
+            }
+            break;
+        case 'w': return keyword_check(1, 4, "hile", TOKEN_WHILE);
+    }
+
+    return TOKEN_IDENTIFIER;
+}
+
+static Token identifier_make()
+{
+    while (is_alpha(peek()) || is_digit(peek())) advance();
+
+    return token_make(identifier_type());
+}
+
+/**
+ * Make a token for a digit
+ *
+ * We consume the digit here, including 
+ * cases where we have a double. Later, 
+ * the compiler will conver the lexeme into 
+ * the number.
+ */
+static Token number_make()
+{
+    while (is_digit(peek())) advance();
+
+    // Look for a fractional part
+    if (peek() == '.' && is_digit(peek_next()))
+    {
+        // consume the "."
+        advance();
+    }
+
+    while (is_digit(peek())) advance();
+
+    return token_make(TOKEN_NUMBER);
+}
+
+static Token string_make()
+{
+    while (peek() != '"' && !is_at_end())
+    {
+        if (peek() == '\n') scanner.line++;
+        advance();
+    }
+
+    if (is_at_end()) return token_error("Unterminated string.");
+
+    // The closing quote
+    advance();
+    return token_make(TOKEN_STRING);
+}
+
 
 /**
  * Check whether a token is a paired token
@@ -138,6 +270,8 @@ Token token_scan()
     if (is_at_end()) return token_make(TOKEN_EOF);
 
     char c = advance();
+    if (is_alpha(c)) return identifier_make();
+    if (is_digit(c)) return number_make();
 
     switch (c)
     {
@@ -161,6 +295,8 @@ Token token_scan()
             return token_make(pair('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
         case '>':
             return token_make(pair('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+        // Literals
+        case '"': return string_make();
     }
 
     return token_error("Unexpected character.");
