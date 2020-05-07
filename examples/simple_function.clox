@@ -7,5 +7,5 @@ fn my_args(arg1 arg2)
 
 fn main()
 {
-    my_args("Hello", "clox!");
+    args_tuple = my_args("Hello", "clox!");
 }
