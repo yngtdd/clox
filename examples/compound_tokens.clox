@@ -1,0 +1,19 @@
+fn is_not_equal(arg1, arg2) 
+{ 
+    return arg1 != arg2;
+}
+
+fn is_equal(arg1, arg2)
+{
+    return arg1 == arg2;
+}
+
+fn is_greater_equal(arg1, arg2)
+{
+    return arg1 >= arg2;
+}
+
+fn is_less_equal(arg1, arg2)
+{
+    return arg1 <= arg2;
+}
