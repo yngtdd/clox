@@ -1,0 +1,9 @@
+fn my_args(arg1 arg2)
+{
+    return (arg1, arg2);
+}
+
+fn main()
+{
+    my_args("Hello", "clox!");
+}
