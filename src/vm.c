@@ -66,8 +66,22 @@ Value vm_stack_pop()
  */
 InterpretResult vm_interpret(const char* source)
 {
-    compile(source);
-    return INTERPRET_OK; 
+    Chunk chunk;
+    chunk_init(&chunk);
+
+    if (!compile(source, &chunk))
+    {
+        chunk_free(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
+
+    vm.chunk = &chunk;
+    vm.ip = vm.chunk->code;
+
+    InterpretResult result = vm_run();
+
+    chunk_free(&chunk);
+    return result;
 }
 
 /**
