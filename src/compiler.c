@@ -14,6 +14,12 @@ typedef struct
 } Parser;
 
 Parser parser;
+Chunk* chunk_compiling;
+
+static Chunk* chunk_current()
+{
+    return chunk_compiling;
+}
 
 static void error_at(Token* token, const char* message)
 {
@@ -68,14 +74,40 @@ static void consume(TokenType type, const char* message)
     error_at_current(message);
 }
 
+static void byte_emit(uint8_t byte)
+{
+    chunk_write(chunk_current(), byte, parser.previous.line);
+}
+
+static void bytes_emit(uint8_t, byte1, uint8_t byte2)
+{
+    byte_emit(byte1);
+    byte_emit(byte2);
+}
+
+static void return_emit()
+{
+    byte_emit(OP_RETURN);
+}
+
+static void compiler_end()
+{
+    return_emit();
+}
+
 bool compile(const char* source, Chunk* chunk)
 {
+    scanner_init(source);
+    chunk_compiling = chunk;
+
     parser.had_error = false;
     parser.panic_mode = false;
-    scanner_init(source);
+
     advance();
     expression();
     consume(TOKEN_EOF, "Expect end of expression.");
+    compiler_end();
+
     return !parser.had_error;
 }
 
